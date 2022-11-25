@@ -13,6 +13,13 @@ namespace KillProcesses
 {
     public partial class Form1 : Form
     {
+        private bool isRunned = false;
+        public bool IsRunned
+        {
+            get { return isRunned; }
+            set { isRunned = value; }
+        }
+
         public Form1()
         {
             InitializeComponent();
@@ -24,10 +31,12 @@ namespace KillProcesses
             LoadProcesses();
         }
 
+        List<Process> processes;
         private void LoadProcesses()
         {
+            this.IsRunned = true;
             task = new Task(() => {
-                List<Process> processes = Process.GetProcesses().ToList();
+                processes = Process.GetProcesses().ToList();
                 processes.ForEach(item => {
                     if (!this.listView1.InvokeRequired)
                         this.listView1.Items.Add(new ListViewItem(item.Id + '-' + item.ProcessName));
@@ -35,13 +44,15 @@ namespace KillProcesses
                         this.listView1.Items.Add(new ListViewItem(item.Id + '-' + item.ProcessName));
                     }));
                 });
+                this.IsRunned = false;
             });
             task.Start();
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
-            LoadProcesses();
+            if (!this.IsRunned)
+                LoadProcesses();
         }
     }
 }
